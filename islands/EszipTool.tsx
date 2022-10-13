@@ -43,6 +43,31 @@ function Upload(props: { onSelect: (file: File) => void }) {
     props.onSelect(input.files![0]);
   }
 
+  useEffect(() => {
+    async function doIt() {
+      const downloadURL = new URLSearchParams(location.search).get(
+        "download_from",
+      );
+      if (!downloadURL) {
+        return;
+      }
+
+      try {
+        setIsDragging(true);
+        const resp = await fetch(downloadURL);
+        const blob = await resp.blob();
+        props.onSelect(new File([blob], "downloaded_archive.eszip"));
+      } catch (error) {
+        window.alert("Download failed, see console");
+        throw error;
+      } finally {
+        setIsDragging(false);
+      }
+    }
+
+    doIt();
+  }, []);
+
   return (
     <form class="flex-grow-1 flex">
       <label
@@ -72,9 +97,7 @@ function Upload(props: { onSelect: (file: File) => void }) {
             d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
           />
         </svg>
-        <p class="text-gray-400">
-          Drop or upload a ESZIP file to get started.
-        </p>
+        <p class="text-gray-400">Drop or upload a ESZIP file to get started.</p>
       </label>
       <input class="hidden" type="file" id="file" onInput={onInput} />
     </form>
@@ -90,7 +113,7 @@ function Viewer(props: { file: File }) {
     props.file.arrayBuffer().then((data) => {
       if (!cancel) setData(new Uint8Array(data));
     });
-    return () => cancel = true;
+    return () => (cancel = true);
   }, [props.file]);
 
   useEffect(() => {
@@ -134,18 +157,16 @@ function FileViewer(props: { sources: Map<string, string> }) {
         </li>
         {Array.from(props.sources.keys())
           .filter((s) => s.includes(search))
-          .map(
-            (specifier) => (
-              <li
-                class={`px-2 hover:bg-gray-50 cursor-pointer whitespace-nowrap ${
-                  specifier === selected && "bg-gray-100 font-bold"
-                }`}
-                onClick={() => setSelected(specifier)}
-              >
-                {specifier}
-              </li>
-            ),
-          )}
+          .map((specifier) => (
+            <li
+              class={`px-2 hover:bg-gray-50 cursor-pointer whitespace-nowrap ${
+                specifier === selected && "bg-gray-100 font-bold"
+              }`}
+              onClick={() => setSelected(specifier)}
+            >
+              {specifier}
+            </li>
+          ))}
       </ul>
       <div class="col-span-3">
         {selected && <SourceViewer source={props.sources.get(selected)!} />}
