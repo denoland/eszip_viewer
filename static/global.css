@@ -1,0 +1,17 @@
+pre {
+  counter-reset: line;
+}
+
+pre span {
+  display: block;
+  line-height: 1.5rem;
+}
+
+pre span:before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  padding-right: .5em;
+  margin-right: .5em;
+  color: #BBB;
+}

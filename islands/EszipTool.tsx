@@ -1,5 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { options, Parser } from "$eszip";
+import { Head } from "$fresh/runtime.ts";
 
 options.wasmURL = window.location &&
   new URL("/eszip_wasm_bg.wasm", window.location.href);
@@ -69,38 +70,44 @@ function Upload(props: { onSelect: (file: File) => void }) {
   }, []);
 
   return (
-    <form class="flex-grow-1 flex">
-      <label
-        htmlFor="file"
-        class={`p-4 border border-dashed m-4 flex-grow-1 flex flex-col items-center justify-center hover:cursor-pointer gap-8 ${
-          isDragging && "bg-gray-100"
-        }`}
-        onDrag={cancelEvent}
-        onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
-        onDragOver={cancelEvent}
-        onDragEnter={onDragStart}
-        onDragLeave={onDragEnd}
-        onDrop={onDrop}
-      >
-        <svg
-          class="text-gray-400 h-12 w-12"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
+    <>
+      <Head>
+        <link href="global.css" rel="stylesheet" />
+      </Head>
+
+      <form class="flex-grow-1 flex">
+        <label
+          htmlFor="file"
+          class={`p-4 border border-dashed m-4 flex-grow-1 flex flex-col items-center justify-center hover:cursor-pointer gap-8 ${
+            isDragging && "bg-gray-100"
+          }`}
+          onDrag={cancelEvent}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          onDragOver={cancelEvent}
+          onDragEnter={onDragStart}
+          onDragLeave={onDragEnd}
+          onDrop={onDrop}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-          />
-        </svg>
-        <p class="text-gray-400">Drop or upload a ESZIP file to get started.</p>
-      </label>
-      <input class="hidden" type="file" id="file" onInput={onInput} />
-    </form>
+          <svg
+            class="text-gray-400 h-12 w-12"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+            />
+          </svg>
+          <p class="text-gray-400">Drop or upload a ESZIP file to get started.</p>
+        </label>
+        <input class="hidden" type="file" id="file" onInput={onInput} />
+      </form>
+    </>
   );
 }
 
@@ -176,5 +183,9 @@ function FileViewer(props: { sources: Map<string, string> }) {
 }
 
 function SourceViewer(props: { source: string }) {
-  return <pre class="font-mono text-sm p-4">{props.source}</pre>;
+  const lines = props.source.split("\n");
+
+  return (
+    <pre class="font-mono text-sm p-4">{lines.map(line => <span>{line}</span>)}</pre>
+  );
 }
